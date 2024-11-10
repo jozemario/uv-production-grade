@@ -1,0 +1,19 @@
+[project]
+name = "uv-fastapi-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.pytest]
+testpaths = ["tests"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+strict_optional = true
+
+[tool.ruff]
+select = ["E", "F", "I"]
+ignore = []
+line-length = 88
