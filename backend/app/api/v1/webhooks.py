@@ -1,3 +1,4 @@
+import json
 from app.core.config import get_config
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -110,12 +111,15 @@ async def notify_webhooks(
 ):
     result = await session.execute(
         select(Webhook).where(
-            Webhook.created_by_id == user_id,
+            Webhook.created_by_id == str(user_id),
             Webhook.is_active == True,
             Webhook.events.any(event)
         )
     )
-    logger.info(f"notify_webhooks Webhooks: {result}")    
+    logger.info(f"notify_webhooks Webhooks: {payload}")    
+    logger.info(f"notify_webhooks Webhooks: {result}")
+
+    
     webhooks = result.scalars().all()
         
     for webhook in webhooks:

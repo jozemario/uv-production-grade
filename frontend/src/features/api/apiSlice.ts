@@ -91,6 +91,7 @@ export const apiSlice = createApi({
         url: "/webhooks",
         method: "GET",
       }),
+      providesTags: ["Webhook"],
     }),
 
     createWebhook: builder.mutation<Webhook, Partial<Webhook>>({

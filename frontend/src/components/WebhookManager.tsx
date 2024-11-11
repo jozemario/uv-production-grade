@@ -4,6 +4,8 @@ import {
   useCreateWebhookMutation,
 } from "../features/api/apiSlice";
 import { XCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 const WebhookManager: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -11,6 +13,7 @@ const WebhookManager: React.FC = () => {
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const { data: webhooks = [], isLoading } = useGetWebhooksQuery({});
   const [createWebhook] = useCreateWebhookMutation();
+  const auth = useSelector((state: RootState) => state.auth);
 
   const availableEvents = ["todo.created", "todo.updated", "todo.deleted"];
 
@@ -29,17 +32,32 @@ const WebhookManager: React.FC = () => {
     }
   };
 
+  const generateNotificationUrl = () => {
+    const baseUrl = "http://localhost:8000";
+    return `${baseUrl}/api/v1/notifications/webhook/${auth.user?.id}`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-900">Webhooks</h2>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-        >
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Webhook
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(generateNotificationUrl());
+            }}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Copy Notification URL
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          >
+            <PlusIcon className="h-4 w-4 mr-2" />
+            Add Webhook
+          </button>
+        </div>
       </div>
 
       {showAddForm && (

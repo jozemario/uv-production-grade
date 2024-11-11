@@ -8,6 +8,7 @@ from .todos import router as todos_router
 from .debug import router as debug_router
 from .webhooks import router as webhooks_router
 from .websockets import router as websockets_router
+from .notifications import router as notifications_router
 from app.core.config import get_config
 
 
@@ -24,3 +25,4 @@ router.include_router(todos_router)
 
 router.include_router(webhooks_router)
 router.include_router(websockets_router)
+router.include_router(notifications_router)

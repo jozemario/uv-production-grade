@@ -9,6 +9,7 @@ import ResetPassword from "../components/auth/ResetPassword";
 import VerifyEmail from "../components/auth/VerifyEmail";
 import AuthLayout from "../components/auth/AuthLayout";
 import TodoApp from "../components/TodoApp";
+import DashboardLayout from "../components/DashboardLayout";
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -114,7 +115,9 @@ const AuthRoutes: React.FC<{ sx?: string }> = ({ sx }) => {
         path="/*"
         element={
           <ProtectedRoute>
-            <TodoApp />
+            <DashboardLayout>
+              <TodoApp />
+            </DashboardLayout>
           </ProtectedRoute>
         }
       />

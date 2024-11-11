@@ -115,7 +115,7 @@ class Webhook(Base):
     url = Column(String, nullable=False)
     events = Column(ARRAY(String), nullable=False)
     is_active = Column(Boolean, default=True)
-    created_by_id = Column(UUID, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    created_by_id = Column(GUID, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
 
     user: Mapped["User"] = relationship("User", backref="webhooks")
 

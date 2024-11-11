@@ -88,7 +88,7 @@ async def add_todo(
         session,
         user_id,
         "todo.created",
-        new_todo.dict()
+        str(new_todo)
     )
     
     return new_todo
@@ -139,7 +139,7 @@ async def update_todo(
         session,
         user.get("user_id"),
         "todo.updated",
-        updated_todo.dict()
+        str(updated_todo)
     )
   
     return updated_todo
@@ -176,5 +176,7 @@ async def delete_todo(
         session,
         user_id,
         "todo.deleted",
-        {"id": todo_id}
+        {"id": str(todo_id)}
     )
+
+    return status.HTTP_204_NO_CONTENT
