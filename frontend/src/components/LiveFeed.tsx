@@ -24,17 +24,12 @@ interface LiveFeedProps {
 export const LiveFeed: React.FC<LiveFeedProps> = ({ onNewMessage }) => {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const { lastMessage, connected } = useWebSocket();
-  //   const availableEventsColors: any = {
-  //     "todo.created": "primary",
-  //     "todo.updated": "secondary",
-  //     "todo.deleted": "error",
-  //     "webhook.notification": "success",
-  //   };
+
   useEffect(() => {
     if (lastMessage) {
       const newItem: FeedItem = {
         id: crypto.randomUUID(),
-        type: lastMessage.type || "event",
+        type: lastMessage.data.type || "event",
         timestamp: new Date().toISOString(),
         data: lastMessage.data,
       };
