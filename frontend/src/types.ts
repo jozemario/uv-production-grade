@@ -88,3 +88,9 @@ export interface LoginResponse {
   access_token: string;
   token_type: string;
 }
+
+export interface Webhook {
+  url: string;
+  events: string[];
+  is_active: boolean;
+}

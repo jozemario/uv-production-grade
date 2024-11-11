@@ -10,8 +10,7 @@ from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyBaseAccessTokenTableUUID,
 )
 from fastapi import Depends
-
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship
 
@@ -35,7 +34,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):  
     pass
 
-engine = create_async_engine(str(config.POSTGRES_URI), echo=True)
+engine:AsyncEngine = create_async_engine(str(config.POSTGRES_URI), echo=True)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

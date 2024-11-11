@@ -1,4 +1,4 @@
 #!/bin/bash
 export $(grep -v '^#' ../.env.local | xargs)
 npm install
-npm start
+npm run start:dev

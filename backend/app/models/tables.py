@@ -3,8 +3,9 @@ from uuid import uuid4
 
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 from fastapi_users_db_sqlalchemy import GUID
-from sqlalchemy import Column, ForeignKey, Text, String, Boolean, UniqueConstraint, UUID
-from sqlalchemy.orm import relationship, RelationshipProperty, Mapped
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from sqlalchemy import Column, ForeignKey, Text, String, Boolean, UniqueConstraint
+from sqlalchemy.orm import relationship, Mapped
 
 from app.models.base import Base
 
@@ -105,3 +106,16 @@ class TodoCategory(Base):
         back_populates='todos_categories',
         lazy='selectin'
     )
+
+
+class Webhook(Base):
+    __tablename__ = "webhooks"
+
+    id = Column(UUID(), primary_key=True, default=uuid4)
+    url = Column(String, nullable=False)
+    events = Column(ARRAY(String), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_by_id = Column(UUID, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+
+    user: Mapped["User"] = relationship("User", backref="webhooks")
+

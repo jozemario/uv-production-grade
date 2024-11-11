@@ -11,7 +11,8 @@ from app.dal.constants import GET_MULTI_DEFAULT_SKIP, GET_MULTI_DEFAULT_LIMIT
 from app.models.tables import Priority, Category, Todo, TodoCategory
 from app.schemas import CategoryInDB, TodoInDB, TodoUpdateInDB
 from app.http_exceptions import ResourceNotExists, UserNotAllowed, ResourceAlreadyExists
-
+from app.websockets.manager import websocket_manager
+from app.api.v1.webhooks import notify_webhooks
 
 class DBService:
 
@@ -219,6 +220,25 @@ class DBService:
             logger.error(f"Unexpected error deleting todo {id_to_delete}: {e}")
             await session.rollback()
             raise
+
+    async def notify_todo_update(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+        event_type: str,
+        todo_data: dict
+    ):
+        # Notify via WebSocket
+        await websocket_manager.broadcast_to_user(
+            str(user_id),
+            {
+                "type": event_type,
+                "data": todo_data
+            }
+        )
+        
+        # Notify via webhooks
+        await notify_webhooks(session, user_id, event_type, todo_data)
 
 
 db_service = DBService()

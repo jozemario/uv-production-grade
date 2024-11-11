@@ -7,6 +7,7 @@ import {
   Priority,
   Category,
   CategoryCreate,
+  Webhook,
 } from "../../types";
 
 export const apiSlice = createApi({
@@ -22,7 +23,7 @@ export const apiSlice = createApi({
     },
     credentials: "include",
   }),
-  tagTypes: ["Todo", "Category", "Priority"],
+  tagTypes: ["Todo", "Category", "Priority", "Webhook"],
   endpoints: (builder) => ({
     // Todo endpoints
     getTodos: builder.query<Todo[], { skip?: number; limit?: number }>({
@@ -83,6 +84,23 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Category"],
     }),
+
+    // Webhook endpoints
+    getWebhooks: builder.query<Webhook[], {}>({
+      query: () => ({
+        url: "/webhooks",
+        method: "GET",
+      }),
+    }),
+
+    createWebhook: builder.mutation<Webhook, Partial<Webhook>>({
+      query: (webhook) => ({
+        url: "/webhooks",
+        method: "POST",
+        body: webhook,
+      }),
+      invalidatesTags: ["Webhook"],
+    }),
   }),
 });
 
@@ -95,4 +113,6 @@ export const {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
   useDeleteCategoryMutation,
+  useGetWebhooksQuery,
+  useCreateWebhookMutation,
 } = apiSlice;

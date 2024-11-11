@@ -42,8 +42,10 @@
         "webpack-dev-server": "^4.15.2"
     },
     "scripts": {
-        "start": "webpack serve --config config/webpack.config.js",
-        "build": "webpack --config config/webpack.config.js",
+        "start:dev": "NODE_ENV=development webpack serve --config config/webpack.config.js",
+        "start": "NODE_ENV=production webpack serve --config config/webpack.config.js",
+        "build": "NODE_ENV=production webpack --config config/webpack.config.js",
+        "build:dev": "NODE_ENV=development webpack --config config/webpack.config.js",
         "generate-client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client --client axios",
         "start:prod": "nginx -g 'daemon off;'"
     }

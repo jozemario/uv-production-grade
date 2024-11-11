@@ -13,7 +13,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { ListBulletIcon, TagIcon } from "@heroicons/react/24/outline";
+import { ListBulletIcon, TagIcon, CogIcon } from "@heroicons/react/24/outline";
+import WebhookManager from "./WebhookManager";
 
 const TodoApp: React.FC = () => {
   const [logoutMutation] = useLogoutMutation();
@@ -80,6 +81,11 @@ const TodoApp: React.FC = () => {
               icon={<TagIcon className="h-5 w-5" />}
               label="Categories"
             />
+            <NavButton
+              to="/settings"
+              icon={<CogIcon className="h-5 w-5" />}
+              label="Settings"
+            />
           </nav>
         </div>
 
@@ -95,6 +101,7 @@ const TodoApp: React.FC = () => {
               }
             />
             <Route path="/categories" element={<CategoryManager />} />
+            <Route path="/settings" element={<WebhookManager />} />
             <Route path="/" element={<Navigate to="/tasks" replace />} />
           </Routes>
         </div>

@@ -11,7 +11,6 @@ from app.utils import exception_handler, get_open_api_response, get_open_api_una
 from app.core.config import get_config
 from app.users.auth import oauth2_scheme, verify_token, validate_token
 from app.users.users import current_active_user
-
 config = get_config()
 
 
@@ -73,13 +72,26 @@ async def add_todo(
     session: AsyncSession = Depends(get_async_session)
 ) -> Todo:
     user = await verify_token(token)
+    user_id = UUID(user.get("user_id"))
+    
     todo_in = TodoInDB(
         content=todo_in.content,
         priority_id=todo_in.priority_id,
         categories_ids=todo_in.categories_ids,
-        created_by_id=user.get("user_id")
+        created_by_id=user_id
     )
-    return await db_service.add_todo(session, todo_in=todo_in)
+    
+    new_todo = await db_service.add_todo(session, todo_in=todo_in)
+    
+    # Notify about the new todo
+    await db_service.notify_todo_update(
+        session,
+        user_id,
+        "todo.created",
+        new_todo.dict()
+    )
+    
+    return new_todo
 
 
 @router.put(
@@ -120,7 +132,17 @@ async def update_todo(
         is_completed=updated_todo.is_completed,
         created_by_id=user.get("user_id")
     )
-    return await db_service.update_todo(session, updated_todo=updated_todo)
+    updated_todo = await db_service.update_todo(session, updated_todo=updated_todo)
+    
+    # Notify about the updated todo
+    await db_service.notify_todo_update(
+        session,
+        user.get("user_id"),
+        "todo.updated",
+        updated_todo.dict()
+    )
+  
+    return updated_todo
 
 
 @router.delete(
@@ -148,3 +170,11 @@ async def delete_todo(
     logger.info(f"Attempting to delete todo {todo_id} by user {user_id}")
 
     await db_service.delete_todo(session, id_to_delete=todo_id, created_by_id=user_id)
+    
+    # Notify about the deleted todo
+    await db_service.notify_todo_update(
+        session,
+        user_id,
+        "todo.deleted",
+        {"id": todo_id}
+    )
