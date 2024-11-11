@@ -52,7 +52,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ onNewMessage }) => {
           <Chip label="Connected" color="success" size="small" sx={{ ml: 1 }} />
         )}
       </Typography>
-      <Paper sx={{ maxHeight: 400, overflow: "auto" }}>
+      <Paper sx={{ maxHeight: "fit-content", overflow: "auto" }}>
         <List>
           {feedItems.length === 0 ? (
             <ListItem>
