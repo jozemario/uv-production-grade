@@ -24,12 +24,12 @@ interface LiveFeedProps {
 export const LiveFeed: React.FC<LiveFeedProps> = ({ onNewMessage }) => {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const { lastMessage, connected } = useWebSocket();
-  const availableEventsColors: any = {
-    "todo.created": "primary",
-    "todo.updated": "secondary",
-    "todo.deleted": "error",
-    "webhook.notification": "success",
-  };
+  //   const availableEventsColors: any = {
+  //     "todo.created": "primary",
+  //     "todo.updated": "secondary",
+  //     "todo.deleted": "error",
+  //     "webhook.notification": "success",
+  //   };
   useEffect(() => {
     if (lastMessage) {
       const newItem: FeedItem = {
@@ -52,7 +52,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ onNewMessage }) => {
           <Chip label="Connected" color="success" size="small" sx={{ ml: 1 }} />
         )}
       </Typography>
-      <Paper sx={{ maxHeight: "fit-content", overflow: "auto" }}>
+      <Paper sx={{ maxHeight: 800, overflow: "auto" }}>
         <List>
           {feedItems.length === 0 ? (
             <ListItem>
@@ -70,7 +70,15 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ onNewMessage }) => {
                     <Box display="flex" alignItems="center" gap={1}>
                       <Chip
                         label={item.type}
-                        color={availableEventsColors[item.type]}
+                        color={
+                          item.type === "todo.updated"
+                            ? "success"
+                            : item.type === "todo.created"
+                            ? "primary"
+                            : item.type === "todo.deleted"
+                            ? "error"
+                            : "info"
+                        }
                         size="small"
                       />
                       <Typography variant="caption">
