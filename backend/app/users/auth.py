@@ -1,4 +1,5 @@
 from asyncio.log import logger
+from app.models.tables import User
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -106,3 +107,7 @@ async def validate_token(token: str = Depends(oauth2_scheme)) -> dict:
             detail=f"Token validation failed: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+async def create_access_token(user: User):
+    strategy = get_jwt_strategy()
+    return await strategy.write_token(user)

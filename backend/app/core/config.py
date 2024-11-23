@@ -112,28 +112,9 @@ class BaseAppSettings(BaseSettings):
     
     class Config:
         case_sensitive = True
-class TestSettings(BaseAppSettings):
-    ENVIRONMENT: str = "test"
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/test_db"
-    JWT_SECRET_KEY: SecretStr = SecretStr("test_secret_key")
-    JWT_SECRET: str = "test_secret"
-    JWT_ALGORITHM: str = 'HS256'
-    JWT_LIFETIME_SECONDS: int = 60 * 60
-    POSTGRES_DB: str = "test_db"
-    POSTGRES_HOST: str = "localhost:5432"
-    POSTGRES_USER: str = "user"
-    POSTGRES_PASSWORD: SecretStr = SecretStr("password")
-    FRONT_END_BASE_URL: AnyHttpUrl = "http://localhost:3000"
-    NODE_ENV: str = "test"
-    
-    class Config:
-        case_sensitive = True
+
 
 @lru_cache()
 def get_config() -> Settings:
     # TODO: remove 'type: ignore[call-arg]' once https://github.com/pydantic/pydantic/issues/3072 is closed
     return Settings()  # type: ignore[call-arg]
-
-@lru_cache()
-def get_test_config() -> TestSettings:
-    return TestSettings()

@@ -35,3 +35,10 @@ uv run python main.py
 #uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 #uv run alembic revision --autogenerate -m "fix_relationships"
 
+# Add this for running tests
+test_cmd() {
+    export ENVIRONMENT=test
+    export PYTHONPATH=$PYTHONPATH:$(pwd)
+    uv run pytest tests/ -v --asyncio-mode=auto
+}
+

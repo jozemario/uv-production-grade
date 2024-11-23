@@ -9,7 +9,9 @@ from fastapi import Depends
 from app.core.config import get_config
 from app.models.tables import User
 from jose import jwt, JWTError
+import logging
 
+logger = logging.getLogger(__name__)
 
 config = get_config()
 
@@ -136,7 +138,9 @@ class TodosDBStrategy(DatabaseStrategy):
         return await super().read_token(token, user_manager)
     
     async def write_token(self, user: User) -> str:
+        logger.info(f"write_token user: {user}")
         data = self.generate_jwt_data(user)
+        logger.info(f"write_token data: {data}")
         return generate_jwt(data, self.encode_key, self.lifetime_seconds, algorithm=self.algorithm)
 
     def generate_jwt_data(self, user: User) -> dict[str, Union[str, list[str], bool]]:

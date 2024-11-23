@@ -1,98 +1,133 @@
-import asyncio
-from typing import Final, AsyncGenerator
+import json
+import os
 import pytest
-import pytest_asyncio
+import asyncio
+from typing import AsyncGenerator, Generator
 from httpx import AsyncClient
-from asgi_lifespan import LifespanManager
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import create_async_engine
-from app.core.config import get_test_config
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from fastapi import FastAPI
+from main import app  # Direct import of the app instance
+from app.core.db import Base
+from app.users.auth import create_access_token
+from app.models.tables import User, Priority, Category, Todo
 
-# from app.core.db import Base
+# Set test environment variables before importing app code
+os.environ.update({
+    "JWT_SECRET_KEY": "test_secret_key",
+    "ENVIRONMENT": "test",
+    "DATABASE_URL": "postgresql+asyncpg://user:password@localhost:5432/test_db",
+    "JWT_SECRET": "test_secret",
+    "POSTGRES_DB": "test_db",
+    "POSTGRES_HOST": "localhost",
+    "POSTGRES_USER": "postgres",
+    "POSTGRES_PASSWORD": "postgres",
+    "FRONT_END_BASE_URL": "http://localhost:3000",
+    "NODE_ENV": "test"
+})
 
-from main import app
-from tests.conftest_utils import insert_test_data, get_user_token_headers
+# Test database URL
+TEST_DATABASE_URL = os.environ["DATABASE_URL"]
 
-TEST_BASE_URL: Final[str] = 'http://test'
+# Create async engine for tests
+engine = create_async_engine(TEST_DATABASE_URL, echo=True)
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-test_config = get_test_config()
+# config = get_config()
 
-engine:AsyncEngine = create_async_engine(str(test_config.POSTGRES_URI), echo=True)
-async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
+def get_tests_data():
+    with open('tests/tests_data.json', 'r') as file:
+        return json.load(file)
 
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
-
-# Create async engine for testing
-test_engine = create_async_engine(
-    test_config.DATABASE_URL,
-    echo=True,
-    future=True
-)
-
-# Create async session factory
-test_async_session = sessionmaker(
-    test_engine, 
-    class_=AsyncSession, 
-    expire_on_commit=False
-)
-
-@pytest.fixture(scope='session')
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
+@pytest.fixture(scope="session")
+def event_loop() -> Generator:
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
-@pytest_asyncio.fixture(scope='session')
-async def connection() -> AsyncGenerator[AsyncConnection, None]:
-    async with engine.begin() as conn:
-        yield conn
-        await conn.rollback()
+@pytest.fixture(scope="session")
+async def test_app() -> FastAPI:
+    return app
 
-@pytest_asyncio.fixture(scope='session')
-async def async_session(connection: AsyncConnection) -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSession(connection, expire_on_commit=False) as session:
-        yield session
-
-@pytest_asyncio.fixture(scope='session', autouse=True)
-async def create_test_data(async_session: AsyncSession):
-    await insert_test_data(async_session)
-
-@pytest_asyncio.fixture(autouse=True)
-async def override_dependency(async_session: AsyncSession):
-    app.dependency_overrides[get_async_session] = lambda: async_session
-    yield
-    app.dependency_overrides.clear()
-
-@pytest_asyncio.fixture
-async def client() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url=TEST_BASE_URL) as ac, LifespanManager(app):
+@pytest.fixture
+async def client(test_app: FastAPI) -> AsyncClient:
+    async with AsyncClient(
+        app=test_app,
+        base_url="http://test",
+        headers={"Content-Type": "application/json"}
+    ) as ac:
         yield ac
 
-@pytest_asyncio.fixture
-async def user_token_headers(client: AsyncClient) -> dict[str, str]:
-    return await get_user_token_headers(client)
-
-@pytest_asyncio.fixture(scope="session")
-# async def test_db() -> AsyncGenerator:
-#     async with test_engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.drop_all)
-#         await conn.run_sync(Base.metadata.create_all)
-#     yield
-#     async with test_engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.drop_all)
-
-@pytest_asyncio.fixture(scope="function")
-async def test_session(test_db) -> AsyncGenerator[AsyncSession, None]:
-    async with test_async_session() as session:
-        yield session
-        await session.rollback()
-        await session.close()
+@pytest.fixture(scope="session")
+async def db_engine():
+    engine = create_async_engine(TEST_DATABASE_URL, echo=True)
+    yield engine
+    await engine.dispose()
 
 @pytest.fixture(scope="function")
-def override_get_config():
-    return get_test_config()
+async def db_session():
+    engine = create_async_engine(TEST_DATABASE_URL, echo=True)
+    
+    # Create all tables from scratch
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    
+    # Create session
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    
+    async with async_session() as session:
+        # Get test data
+        test_data = get_tests_data()
+        user_data = test_data['users'][0]
+        
+        # Create test user
+        user = User(
+            id=user_data['id'],
+            email=user_data['email']
+        )
+        session.add(user)
+        
+        # Create priorities
+        priorities = [
+            Priority(id="123e4567-e89b-12d3-a456-426614174001", name="High"),
+            Priority(id="123e4567-e89b-12d3-a456-426614174002", name="Medium"),
+            Priority(id="123e4567-e89b-12d3-a456-426614174003", name="Low")
+        ]
+        for priority in priorities:
+            session.add(priority)
+        
+        # Create categories
+        for category in user_data['categories']:
+            cat = Category(
+                id=category['id'],
+                name=category['name'],
+                created_by_id=user_data['id']
+            )
+            session.add(cat)
+        
+        await session.commit()
+        
+        yield session
+    
+    # Cleanup
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
+
+@pytest.fixture(scope="session")
+async def user_token_headers() -> dict:
+    # Create a User instance instead of a dict
+    test_user = User(
+        id="123e4567-e89b-12d3-a456-426614174005",
+        email="test@test.com",
+        is_superuser=False
+    )
+    
+    access_token = await create_access_token(
+        test_user
+    )
+    return {"Authorization": f"Bearer {access_token}"}

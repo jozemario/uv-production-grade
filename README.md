@@ -141,4 +141,14 @@ cd backend
 cd frontend
 ./run_local.sh
 
+
+run tests
+```
+
+./run_local.sh test_cmd
+
+uv run pytest tests/ -v --asyncio-mode=auto
+
+```
+
 ```
