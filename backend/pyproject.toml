@@ -7,6 +7,8 @@ requires-python = ">=3.12"
 
 [tool.pytest]
 testpaths = ["tests"]
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "session"
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]

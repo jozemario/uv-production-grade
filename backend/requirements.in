@@ -23,3 +23,8 @@ starlette
 python-multipart
 httpx
 websockets
+pytest
+pytest-asyncio
+pytest-cov
+pytest-mock
+asgi-lifespan

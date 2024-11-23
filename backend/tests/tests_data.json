@@ -1,0 +1,111 @@
+{
+  "priorities": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "Low",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174001",
+      "name": "Medium",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174002",
+      "name": "High",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174003",
+      "name": "Personal",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "created_by_id": null
+    },
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174004",
+      "name": "Work",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "created_by_id": null
+    }
+  ],
+  "users": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174005",
+      "email": "test1@test.com",
+      "password": "test1password",
+      "is_active": true,
+      "is_superuser": false,
+      "is_verified": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "categories": [
+        {
+          "id": "123e4567-e89b-12d3-a456-426614174006",
+          "name": "Chess",
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z",
+          "created_by_id": "123e4567-e89b-12d3-a456-426614174005"
+        }
+      ],
+      "todos": [
+        {
+          "id": 1,
+          "content": "Learn the sicilian opening",
+          "is_completed": false,
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z",
+          "priority_id": "123e4567-e89b-12d3-a456-426614174001",
+          "created_by_id": "123e4567-e89b-12d3-a456-426614174005",
+          "categories": [
+            {
+              "id": "123e4567-e89b-12d3-a456-426614174003",
+              "name": "Personal"
+            },
+            {
+              "id": "123e4567-e89b-12d3-a456-426614174006",
+              "name": "Chess"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "email": "test2@test.com",
+      "password": "test",
+      "categories": [
+        {
+          "id": "123e4567-e89b-12d3-a456-426614174007",
+          "name": "Nintendo"
+        }
+      ],
+      "todos": [
+        {
+          "id": 2,
+          "is_completed": false,
+          "content": "Grind mario kart online",
+          "priority": {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "name": "Low"
+          },
+          "categories": [
+            {
+              "id": "123e4567-e89b-12d3-a456-426614174003",
+              "name": "Personal"
+            },
+            {
+              "id": "123e4567-e89b-12d3-a456-426614174007",
+              "name": "Nintendo"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

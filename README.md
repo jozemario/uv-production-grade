@@ -68,8 +68,9 @@ The backend API will be available at http://localhost:8000, and the frontend at 
 
 For local development:
 
+```
 Install UV:
-Copycurl -LsSf https://astral.sh/uv/install.sh | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 Set up the backend environment:
 Copycd backend
@@ -128,3 +129,16 @@ uv run alembic revision --autogenerate -m "Create todo table"
 uv run alembic upgrade head
 
 ---
+
+dev env
+split 3 terminals
+
+docker-compose up --build
+
+cd backend
+./run_local.sh
+
+cd frontend
+./run_local.sh
+
+```
